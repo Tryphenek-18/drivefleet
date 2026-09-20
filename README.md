@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # drivefleet
 vehicle rental management system
 =======
@@ -460,4 +459,3 @@ src/
 | `Failed to fetch` in the console | Normal without a backend — `withMock()` answers instead |
 | Toast says "Invalid credentials" with correct demo login | Check for a stale `drivefleet.token` in `localStorage` and clear site data |
 | Changed seed data but the UI still shows old numbers | Call `DriveFleetApi.resetDb()` in the console, or press **Reset mock data** on the dashboard |
->>>>>>> da1e1ba (initialiaze project)
