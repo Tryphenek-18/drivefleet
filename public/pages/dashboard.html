@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — DriveFleet</title>
+  <meta name="description" content="DriveFleet dashboard: fleet status, active rentals, revenue and customer snapshot." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body data-page="dashboard" data-root="../">
+  <div class="app-shell">
+    <aside id="siteSidebar"></aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="main-content">
+      <div id="siteTopbar"></div>
+
+      <div class="page-content">
+        <div id="authNotice"></div>
+
+        <div class="page-header">
+          <div>
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <a href="../index.html">Home</a>
+              <span class="breadcrumb-sep">/</span>
+              <span>Dashboard</span>
+            </nav>
+            <h1>Fleet overview</h1>
+            <p>Live snapshot of every vehicle, booking and payment in the fleet.</p>
+          </div>
+          <div class="page-header-actions">
+            <button class="btn btn-outline" id="resetMockDb" type="button">Reset mock data</button>
+            <a class="btn btn-primary" href="vehicles.html">Book a vehicle</a>
+          </div>
+        </div>
+
+        <div class="stat-strip" id="statStrip" aria-live="polite"></div>
+
+        <div class="grid grid-2 section">
+          <article class="card filter-card">
+            <div class="filter-title">Fleet status</div>
+            <div class="summary-list" id="fleetStatus"></div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <h2 class="headline-sm">Recent rentals</h2>
+              <a class="btn btn-ghost btn-sm" href="rentals.html">All rentals</a>
+            </div>
+            <div id="recentRentals"></div>
+          </article>
+        </div>
+      </div>
+
+      <footer class="footer" id="siteFooter"></footer>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+  <script src="../js/app.js"></script>
+</body>
+</html>

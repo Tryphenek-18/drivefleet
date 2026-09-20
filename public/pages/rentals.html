@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rentals — DriveFleet</title>
+  <meta name="description" content="DriveFleet rentals: track every booking, its status, balance and return date." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body data-page="rentals" data-root="../">
+  <div class="app-shell">
+    <aside id="siteSidebar"></aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="main-content">
+      <div id="siteTopbar"></div>
+
+      <div class="page-content">
+        <div id="authNotice"></div>
+
+        <div class="page-header">
+          <div>
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <a href="../index.html">Home</a>
+              <span class="breadcrumb-sep">/</span>
+              <span>Rentals</span>
+            </nav>
+            <h1>Rental bookkeeping</h1>
+            <p>Follow every booking from reservation to return, and settle balances as they arrive.</p>
+          </div>
+          <div class="page-header-actions">
+            <a class="btn btn-outline" href="payments.html">Payments</a>
+            <button class="btn btn-primary" id="newRentalBtn" type="button">New rental</button>
+          </div>
+        </div>
+
+        <form class="card filter-card" id="rentalFilters" aria-label="Rental filters">
+          <div class="search-grid">
+            <div class="form-group">
+              <label class="form-label" for="rSearch">Search</label>
+              <input class="form-input" type="search" id="rSearch" name="search" placeholder="Rental #, customer, vehicle or plate" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rStatus">Rental status</label>
+              <select class="form-select" id="rStatus" name="status">
+                <option value="">Any status</option>
+                <option value="pending">Pending</option>
+                <option value="reserved">Reserved</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="overdue">Overdue</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rPayment">Payment status</label>
+              <select class="form-select" id="rPayment" name="payment_status">
+                <option value="">Any payment state</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Paid</option>
+                <option value="refunded">Refunded</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-lg" type="submit">Apply filters</button>
+          </div>
+        </form>
+
+        <div class="results-bar">
+          <span class="results-count" id="resultsCount">Loading rentals…</span>
+          <button class="btn btn-ghost btn-sm" type="reset" form="rentalFilters">Clear filters</button>
+        </div>
+
+        <div id="rentalResults" aria-live="polite"></div>
+      </div>
+
+      <footer class="footer" id="siteFooter"></footer>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+  <script src="../js/app.js"></script>
+</body>
+</html>

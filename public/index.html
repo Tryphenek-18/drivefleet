@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DriveFleet — Premium Vehicle Rental Management</title>
+  <meta name="description" content="DriveFleet — rent premium vehicles in minutes and manage your entire rental fleet from one modern dashboard." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body data-page="home">
+  <!-- Rendered by js/components.js: #site-navbar, #mobile-menu -->
+  <div id="site-navbar"></div>
+  <div id="mobile-menu"></div>
+
+  <main>
+    <!-- ============================= HERO ============================= -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-inner">
+          <div>
+            <span class="hero-eyebrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.3 6.6.7-4.9 4.5 1.4 6.5L12 16.8 5.9 20l1.4-6.5L2.5 9l6.6-.7z"/></svg>
+              Trusted by 12,000+ drivers worldwide
+            </span>
+            <h1>Rent the perfect car <span class="accent">in under 60 seconds</span></h1>
+            <p class="hero-sub">
+              DriveFleet gives you instant access to a curated fleet of premium vehicles — with
+              transparent pricing, real-time availability and a full management dashboard for your rentals.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary btn-lg" href="./pages/vehicles.html">
+                Browse vehicles
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <a class="btn btn-secondary btn-lg" href="#how-it-works">How it works</a>
+            </div>
+            <div class="hero-stats">
+              <div class="hero-stat">
+                <div class="stat-value" data-count="248">0</div>
+                <div class="stat-label">Vehicles in fleet</div>
+              </div>
+              <div class="hero-stat">
+                <div class="stat-value" data-count="12480">0</div>
+                <div class="stat-label">Completed rentals</div>
+              </div>
+              <div class="hero-stat">
+                <div class="stat-value" data-count="99" data-suffix="%">0</div>
+                <div class="stat-label">Positive reviews</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-visual">
+            <img src="./assets/hero-vehicle.svg" alt="Premium electric sedan in a bright studio" width="960" height="720" />
+            <div class="hero-float-card">
+              <span class="float-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+              </span>
+              <div>
+                <div class="title-md">4.9 <span class="text-muted label-md">/ 5.0</span></div>
+                <div class="body-sm text-muted">Average customer rating</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== SEARCH / FILTER PANEL =================== -->
+    <section class="container">
+      <form class="search-panel reveal" id="heroSearchForm" aria-label="Vehicle availability search">
+        <div class="search-grid">
+          <div class="form-group">
+            <label class="form-label" for="searchType">Vehicle type</label>
+            <select class="form-select" id="searchType" name="type">
+              <option value="">All types</option>
+              <option value="sedan">Sedan</option>
+              <option value="suv">SUV</option>
+              <option value="hatchback">Hatchback</option>
+              <option value="pickup">Pickup</option>
+              <option value="van">Van</option>
+              <option value="luxury">Luxury</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="searchPickup">Pick-up date</label>
+            <input class="form-input" type="date" id="searchPickup" name="pickup_date" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="searchReturn">Return date</label>
+            <input class="form-input" type="date" id="searchReturn" name="return_date" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="searchPrice">Max price / day</label>
+            <select class="form-select" id="searchPrice" name="max_price">
+              <option value="">Any price</option>
+              <option value="50">Up to $50</option>
+              <option value="80">Up to $80</option>
+              <option value="120">Up to $120</option>
+              <option value="200">Up to $200</option>
+            </select>
+          </div>
+          <button class="btn btn-accent btn-lg search-submit" type="submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            Search
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ============================= FLEET ============================ -->
+    <section class="section" id="fleet">
+      <div class="container">
+        <div class="section-header reveal">
+          <h2>Featured vehicles</h2>
+          <p>Hand-picked cars ready to drive today. Prices include basic insurance and 200 km per day.</p>
+        </div>
+        <div class="grid grid-auto" id="featuredVehicles" data-limit="6" aria-live="polite">
+          <!-- Rendered by js/main.js -->
+        </div>
+        <div class="section-cta">
+          <a class="btn btn-outline btn-lg" href="./pages/vehicles.html">
+            View all vehicles
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================== HOW IT WORKS ======================== -->
+    <section class="section section-alt" id="how-it-works">
+      <div class="container">
+        <div class="section-header reveal">
+          <h2>Rent a car in three simple steps</h2>
+          <p>From search to keys in hand — no paperwork, no hidden fees.</p>
+        </div>
+        <div class="grid grid-3">
+          <article class="card card-hover reveal reveal-d1">
+            <div class="step-card">
+              <div class="step-number">1</div>
+              <h3 class="headline-sm">Find your vehicle</h3>
+              <p class="body-md text-muted step-text">
+                Filter the fleet by type, price and availability to instantly see what fits your trip and budget.
+              </p>
+            </div>
+          </article>
+          <article class="card card-hover reveal reveal-d2">
+            <div class="step-card">
+              <div class="step-number">2</div>
+              <h3 class="headline-sm">Book in seconds</h3>
+              <p class="body-md text-muted step-text">
+                Pick your dates, review the dynamic price breakdown and confirm. Your reservation is locked instantly.
+              </p>
+            </div>
+          </article>
+          <article class="card card-hover reveal reveal-d3">
+            <div class="step-card">
+              <div class="step-number">3</div>
+              <h3 class="headline-sm">Drive &amp; return</h3>
+              <p class="body-md text-muted step-text">
+                Collect the car at the branch, enjoy the road, then return it. Final payment is calculated automatically.
+              </p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================== FEATURES =========================== -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header reveal">
+          <h2>Everything your rental business needs</h2>
+          <p>A single management platform for vehicles, customers, bookings and payments.</p>
+        </div>
+        <div class="grid grid-4">
+          <article class="card feature-card reveal reveal-d1">
+            <span class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16h16M5 16V9l2-4h10l2 4v7"/><circle cx="8" cy="17.5" r="1.5"/><circle cx="16" cy="17.5" r="1.5"/></svg>
+            </span>
+            <h3 class="title-md">Dynamic fleet</h3>
+            <p class="body-sm text-muted">Track every vehicle's status, mileage and daily rate in real time.</p>
+          </article>
+          <article class="card feature-card reveal reveal-d2">
+            <span class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
+            </span>
+            <h3 class="title-md">Smart bookings</h3>
+            <p class="body-sm text-muted">Automatic price calculation based on duration, vehicle class and extras.</p>
+          </article>
+          <article class="card feature-card reveal reveal-d3">
+            <span class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M7 15h3"/><rect x="2" y="5" width="20" height="14" rx="2"/></svg>
+            </span>
+            <h3 class="title-md">Payment tracking</h3>
+            <p class="body-sm text-muted">Record deposits and final payments with a clear audit trail per rental.</p>
+          </article>
+          <article class="card feature-card reveal reveal-d4">
+            <span class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 20v-2a4 4 0 0 0-3-3.87"/></svg>
+            </span>
+            <h3 class="title-md">Customer CRM</h3>
+            <p class="body-sm text-muted">Maintain licence data, contact details and full rental history per customer.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================== REVIEWS =========================== -->
+    <section class="section section-alt">
+      <div class="container">
+        <div class="section-header reveal">
+          <h2>Loved by drivers and operators</h2>
+          <p>Real feedback from customers and fleet managers using DriveFleet every day.</p>
+        </div>
+        <div class="grid grid-3">
+          <article class="card review-card reveal reveal-d1">
+            <div class="stars" role="img" aria-label="Rated 5 out of 5">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+            </div>
+            <p class="review-text">"Booked an SUV for a weekend trip in literally two minutes. The price breakdown was crystal clear — no surprises at the counter."</p>
+            <div class="review-author">
+              <span class="review-avatar" aria-hidden="true">AM</span>
+              <div>
+                <div class="title-md">Amelia Moreau</div>
+                <div class="body-sm text-muted">Customer</div>
+              </div>
+            </div>
+          </article>
+          <article class="card review-card reveal reveal-d2">
+            <div class="stars" role="img" aria-label="Rated 5 out of 5">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+            </div>
+            <p class="review-text">"The dashboard replaced three spreadsheets. I can see which cars are out, which are due back and who still owes a payment."</p>
+            <div class="review-author">
+              <span class="review-avatar" aria-hidden="true">RK</span>
+              <div>
+                <div class="title-md">Ravi Kapoor</div>
+                <div class="body-sm text-muted">Fleet Manager</div>
+              </div>
+            </div>
+          </article>
+          <article class="card review-card reveal reveal-d3">
+            <div class="stars" role="img" aria-label="Rated 5 out of 5">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z"/></svg>
+            </div>
+            <p class="review-text">"Filtering by availability finally tells me the truth. No more double-booking the same car for two customers."</p>
+            <div class="review-author">
+              <span class="review-avatar" aria-hidden="true">LC</span>
+              <div>
+                <div class="title-md">Lena Chen</div>
+                <div class="body-sm text-muted">Operations Lead</div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= CTA ============================== -->
+    <section class="section">
+      <div class="container">
+        <div class="cta-band reveal">
+          <h2>Ready to put your fleet to work?</h2>
+          <p>Create a free account and start managing vehicles, bookings and payments in minutes.</p>
+          <div class="hero-actions cta-actions">
+            <a class="btn btn-secondary btn-lg" href="./pages/register.html">Create free account</a>
+            <a class="btn btn-lg btn-on-dark" href="./pages/login.html">Sign in</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="siteFooter"></footer>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Application layer: app.js is the bundle of data → mock-core → mock-api →
+       api → components → ui → main, produced by scripts/build_frontend.py -->
+  <script src="./js/app.js"></script>
+</body>
+</html>

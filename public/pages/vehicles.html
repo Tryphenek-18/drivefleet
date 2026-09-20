@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fleet — DriveFleet</title>
+  <meta name="description" content="Browse the DriveFleet fleet, filter by type, price and availability, then book in seconds." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body data-page="vehicles" data-root="../">
+  <div class="app-shell">
+    <aside id="siteSidebar"></aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="main-content">
+      <div id="siteTopbar"></div>
+
+      <div class="page-content">
+        <div id="authNotice"></div>
+
+        <div class="page-header">
+          <div>
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <a href="../index.html">Home</a>
+              <span class="breadcrumb-sep">/</span>
+              <span>Fleet</span>
+            </nav>
+            <h1>Vehicle catalogue</h1>
+            <p>Filter by type, price, transmission and availability — then book instantly.</p>
+          </div>
+          <div class="page-header-actions">
+            <a class="btn btn-outline" href="dashboard.html">Dashboard</a>
+            <button class="btn btn-primary" id="addVehicleBtn" type="button">Add vehicle</button>
+          </div>
+        </div>
+
+        <div class="catalog-layout">
+          <aside class="filter-sidebar">
+            <form class="card filter-card" id="vehicleFilters">
+              <div class="filter-title">Refine your search</div>
+
+              <div class="form-group">
+                <label class="form-label" for="fSearch">Keyword</label>
+                <input class="form-input" type="search" id="fSearch" name="search" placeholder="Brand, model or plate" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="fType">Vehicle type</label>
+                <select class="form-select" id="fType" name="type">
+                  <option value="">All types</option>
+                  <option value="sedan">Sedan</option>
+                  <option value="suv">SUV</option>
+                  <option value="hatchback">Hatchback</option>
+                  <option value="pickup">Pickup</option>
+                  <option value="van">Van</option>
+                  <option value="luxury">Luxury</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="fBranch">Pick-up branch</label>
+                <select class="form-select" id="fBranch" name="branch">
+                  <option value="">All branches</option>
+                  <option value="Downtown Branch">Downtown Branch</option>
+                  <option value="Airport Hub">Airport Hub</option>
+                  <option value="North Depot">North Depot</option>
+                </select>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="fMin">Min price / day</label>
+                  <input class="form-input" type="number" id="fMin" name="min_price" min="0" step="1" placeholder="0" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="fMax">Max price / day</label>
+                  <input class="form-input" type="number" id="fMax" name="max_price" min="0" step="1" placeholder="200" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="fTransmission">Transmission</label>
+                <select class="form-select" id="fTransmission" name="transmission">
+                  <option value="">Any</option>
+                  <option value="Automatic">Automatic</option>
+                  <option value="Manual">Manual</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="fFuel">Fuel</label>
+                <select class="form-select" id="fFuel" name="fuel">
+                  <option value="">Any</option>
+                  <option value="Petrol">Petrol</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="Hybrid">Hybrid</option>
+                  <option value="Electric">Electric</option>
+                </select>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="fPickup">Pick-up date</label>
+                  <input class="form-input" type="date" id="fPickup" name="pickup_date" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="fReturn">Return date</label>
+                  <input class="form-input" type="date" id="fReturn" name="return_date" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="fSort">Sort by</label>
+                <select class="form-select" id="fSort" name="sort">
+                  <option value="">Recommended</option>
+                  <option value="price_asc">Price: low to high</option>
+                  <option value="price_desc">Price: high to low</option>
+                  <option value="rating">Highest rated</option>
+                  <option value="year">Newest model</option>
+                  <option value="name">Name A → Z</option>
+                </select>
+              </div>
+
+              <label class="checkbox-item">
+                <input type="checkbox" name="available_only" value="true" /> Only show available vehicles
+              </label>
+
+              <div class="filter-actions">
+                <button class="btn btn-primary btn-block" type="submit">Apply filters</button>
+                <button class="btn btn-ghost btn-block" type="reset">Clear</button>
+              </div>
+            </form>
+          </aside>
+
+          <section id="fleet">
+            <div class="results-bar">
+              <span class="results-count" id="resultsCount">Loading vehicles…</span>
+            </div>
+            <div class="grid grid-auto" id="vehicleResults" aria-live="polite"></div>
+            <div class="pagination" id="pagination"></div>
+          </section>
+        </div>
+      </div>
+
+      <footer class="footer" id="siteFooter"></footer>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+  <script src="../js/app.js"></script>
+</body>
+</html>

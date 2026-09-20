@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customers — DriveFleet</title>
+  <meta name="description" content="DriveFleet customer directory: licence data, contact details and rental history." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body data-page="customers" data-root="../">
+  <div class="app-shell">
+    <aside id="siteSidebar"></aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="main-content">
+      <div id="siteTopbar"></div>
+
+      <div class="page-content">
+        <div id="authNotice"></div>
+
+        <div class="page-header">
+          <div>
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+              <a href="../index.html">Home</a>
+              <span class="breadcrumb-sep">/</span>
+              <span>Customers</span>
+            </nav>
+            <h1>Customer directory</h1>
+            <p>Licence records, contact details and complete rental history per customer.</p>
+          </div>
+          <div class="page-header-actions">
+            <a class="btn btn-outline" href="dashboard.html">Dashboard</a>
+            <button class="btn btn-primary" id="addCustomerBtn" type="button">Add customer</button>
+          </div>
+        </div>
+
+        <form class="card filter-card" id="customerFilters" aria-label="Customer filters">
+          <div class="search-grid">
+            <div class="form-group">
+              <label class="form-label" for="cSearch">Search</label>
+              <input class="form-input" type="search" id="cSearch" name="search" placeholder="Name, email, phone or licence" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cStatus">Status</label>
+              <select class="form-select" id="cStatus" name="status">
+                <option value="">Any status</option>
+                <option value="active">Active</option>
+                <option value="new">New</option>
+                <option value="blocked">Blocked</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="cCity">City</label>
+              <select class="form-select" id="cCity" name="city">
+                <option value="">All cities</option>
+                <option value="Lisbon">Lisbon</option>
+                <option value="Porto">Porto</option>
+                <option value="Braga">Braga</option>
+                <option value="Coimbra">Coimbra</option>
+                <option value="Faro">Faro</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-lg" type="submit">Apply filters</button>
+          </div>
+        </form>
+
+        <div class="results-bar">
+          <span class="results-count" id="resultsCount">Loading customers…</span>
+          <button class="btn btn-ghost btn-sm" type="reset" form="customerFilters">Clear filters</button>
+        </div>
+
+        <div id="customerResults" aria-live="polite"></div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+
+      <footer class="footer" id="siteFooter"></footer>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+  <script src="../js/app.js"></script>
+</body>
+</html>
