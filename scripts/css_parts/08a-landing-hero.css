@@ -155,6 +155,13 @@
 }
 
 .grid { display: grid; gap: var(--space-lg); }
+
+/* Grid items default to `min-width: auto`, i.e. their min-content width — a wide
+   data table inside a card would then force the whole page wider than the
+   viewport. Zeroing it lets 1fr tracks shrink and the .table-wrapper scroll
+   instead of the page. */
+.grid > * { min-width: 0; }
+
 .grid-2 { grid-template-columns: repeat(2, 1fr); }
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 .grid-4 { grid-template-columns: repeat(4, 1fr); }

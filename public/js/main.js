@@ -17,6 +17,15 @@
   var CAR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h18M4 17v-5l2.2-4.4A2 2 0 0 1 8 6.5h8a2 2 0 0 1 1.8 1.1L20 12v5"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/><path d="M5 12h14"/></svg>';
   var CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
 
+  var IMAGE_DIR = ROOT + 'assets/vehicles/';
+  var CARD_SIZES = '(max-width: 560px) 92vw, (max-width: 1024px) 45vw, 360px';
+
+  /* requestAnimationFrame with a timer fallback so animations can never break a
+     feature (they are decorative). */
+  var raf = window.requestAnimationFrame
+    ? window.requestAnimationFrame.bind(window)
+    : function (callback) { return window.setTimeout(function () { callback(Date.now()); }, 16); };
+
   /* ----------------------------- Utilities ----------------------------- */
 
   function el(id) { return document.getElementById(id); }
@@ -55,6 +64,31 @@
       '<span class="vehicle-thumb-label">' + esc(label || 'DriveFleet') + '</span></span>';
   }
 
+  /* ------------------------------ Vehicle media ------------------------ */
+
+  /* Real WebP photograph with the SVG glyph behind it: if the file is missing
+     (or the network fails) the card still looks intentional, never broken. */
+  function vehiclePhoto(vehicle, label, sizes) {
+    var base = String((vehicle && vehicle.image) || '').replace(/\.[a-z0-9]+$/i, '');
+    if (!base) return '';
+    return '<img class="vehicle-photo" src="' + IMAGE_DIR + base + '-large.webp"' +
+      ' srcset="' + IMAGE_DIR + base + '-small.webp 400w, ' + IMAGE_DIR + base + '-large.webp 800w"' +
+      ' sizes="' + (sizes || CARD_SIZES) + '" width="800" height="500"' +
+      ' loading="lazy" decoding="async" alt="' + esc(label) + '" />';
+  }
+
+  function bindMedia(root) {
+    qsa('.vehicle-photo, .modal-hero img', root || document).forEach(function (image) {
+      if (image.getAttribute('data-media-bound') === '1') return;
+      image.setAttribute('data-media-bound', '1');
+      function loaded() { image.classList.add('is-loaded'); }
+      function missing() { image.classList.add('is-missing'); }
+      image.addEventListener('load', loaded);
+      image.addEventListener('error', missing);
+      if (image.complete) { (image.naturalWidth > 0 ? loaded : missing)(); }
+    });
+  }
+
   /* ------------------------------ Modals ------------------------------- */
 
   var modalHost = null;
@@ -72,23 +106,41 @@
   function openModal(options) {
     options = options || {};
     var host = ensureModalHost();
+
     host.innerHTML =
       '<div class="modal-overlay open" id="appModalOverlay">' +
-        '<div class="modal' + (options.size === 'lg' ? ' modal-lg' : '') + '" role="dialog" aria-modal="true" aria-label="' + esc(options.title || 'Dialog') + '">' +
+        '<div class="modal' + (options.size === 'lg' ? ' modal-lg' : '') + '" role="dialog" aria-modal="true" aria-labelledby="appModalTitle">' +
+          '<span class="modal-grabber" aria-hidden="true"></span>' +
           '<div class="modal-header">' +
-            '<h3>' + esc(options.title || '') + '</h3>' +
-            '<button class="modal-close" type="button" aria-label="Close" data-close-modal>&times;</button>' +
+            '<div class="modal-heading">' +
+              (options.eyebrow ? '<span class="modal-eyebrow">' + options.eyebrow + '</span>' : '') +
+              '<h3 id="appModalTitle">' + esc(options.title || '') + '</h3>' +
+              (options.subtitle ? '<p class="modal-subtitle">' + options.subtitle + '</p>' : '') +
+            '</div>' +
+            '<button class="modal-close" type="button" aria-label="Close dialog" data-close-modal>&times;</button>' +
           '</div>' +
+          (options.hero || '') +
           '<div class="modal-body">' + (options.body || '') + '</div>' +
           (options.footer ? '<div class="modal-footer">' + options.footer + '</div>' : '') +
         '</div>' +
       '</div>';
+
     var overlay = el('appModalOverlay');
     overlay.addEventListener('click', function (event) {
       if (event.target === overlay || event.target.closest('[data-close-modal]')) { closeModal(); }
     });
+
+    /* Selected extras get the highlighted card treatment. */
+    overlay.addEventListener('change', function (event) {
+      var input = event.target.closest('[data-extra]');
+      if (!input) return;
+      var card = input.closest('.extra-option');
+      if (card) { card.classList.toggle('is-selected', input.checked); }
+    });
+
     document.addEventListener('keydown', modalEscape);
     document.body.style.overflow = 'hidden';
+    bindMedia(overlay);
     return overlay;
   }
 
@@ -96,11 +148,19 @@
     if (event.key === 'Escape') { closeModal(); }
   }
 
+  /* Plays the exit animation first, then unmounts — callers can keep reading the
+     modal contents while it disappears. */
   function closeModal() {
     var overlay = el('appModalOverlay');
-    if (overlay && overlay.parentNode) { overlay.parentNode.removeChild(overlay); }
     document.removeEventListener('keydown', modalEscape);
     document.body.style.overflow = '';
+    if (!overlay || overlay.getAttribute('data-state') === 'closing') { return; }
+
+    overlay.setAttribute('data-state', 'closing');
+    overlay.classList.remove('open');
+    window.setTimeout(function () {
+      if (overlay.parentNode) { overlay.parentNode.removeChild(overlay); }
+    }, 220);
   }
 
   /* --------------------------- Reveal on scroll ------------------------ */
@@ -151,8 +211,9 @@
       '<article class="card card-hover vehicle-card" data-vehicle="' + v.id + '">' +
         '<div class="vehicle-card-image">' +
           badge(v.status) +
-          '<span class="badge badge-neutral type-badge">' + esc(typeLabel(v.type)) + '</span>' +
+          '<span class="badge badge-neutral type-badge">' + esc(typelabel(v.type)) + '</span>' +
           carGlyph(v.brand) +
+          vehiclePhoto(v, label) +
         '</div>' +
         '<div class="vehicle-card-body">' +
           '<span class="label-xs text-muted">' + esc(v.branch || 'Unassigned branch') + '</span>' +
@@ -183,9 +244,11 @@
       return;
     }
     host.innerHTML = vehicles.map(function (v) { return vehicleCard(v, options); }).join('');
+    bindMedia(host);
   }
 
   function bindVehicleActions(vehicles, container) {
+    bindMedia(container);
     qsa('[data-book-vehicle]', container).forEach(function (button) {
       button.addEventListener('click', function () {
         var id = button.getAttribute('data-book-vehicle');
@@ -226,10 +289,25 @@
 
     openModal({
       title: vehicle.brand + ' ' + vehicle.model,
-      body: '<div class="summary-list">' + rows + '</div>' +
-        '<div class="filter-title">Included features</div><ul class="chip-list">' + features + '</ul>',
-      footer: '<button class="btn btn-ghost" type="button" data-close-modal>Close</button>' +
-        '<button class="btn btn-primary" type="button" data-book-vehicle="' + vehicle.id + '">Book this vehicle</button>'
+      eyebrow: typeLabel(vehicle.type) + ' · ' + vehicle.year,
+      subtitle: esc(vehicle.branch || 'DriveFleet') + ' · ' + esc(vehicle.plate || '') + ' · ★ ' + esc(vehicle.rating),
+      hero: '<div class="modal-hero">' + badge(vehicle.status) + vehiclePhoto(vehicle, vehicle.brand + ' ' + vehicle.model, '100vw') + '</div>',
+      body: '<div class="modal-section modal-anim">' +
+          '<div class="modal-section-title">Specifications</div>' +
+          '<div class="summary-list">' + rows + '</div>' +
+        '</div>' +
+        '<div class="modal-section modal-anim modal-anim-d1">' +
+          '<div class="modal-section-title">Included features</div>' +
+          '<ul class="chip-list">' + features + '</ul>' +
+        '</div>',
+      footer: '<div class="modal-footer-total">' +
+          '<span class="label-xs">Daily rate</span>' +
+          '<span class="value">' + money(vehicle.price_per_day) + '</span>' +
+        '</div>' +
+        '<div class="modal-footer-actions">' +
+          '<button class="btn btn-ghost" type="button" data-close-modal>Close</button>' +
+          '<button class="btn btn-primary" type="button" data-book-vehicle="' + vehicle.id + '">Book this vehicle</button>' +
+        '</div>'
     });
 
     var book = qs('[data-book-vehicle]', el('appModalOverlay'));
@@ -252,27 +330,59 @@
       }).join('');
 
       var extraFields = extras.map(function (e) {
-        return '<label class="checkbox-item"><input type="checkbox" value="' + e.id + '" data-extra /> ' +
-          esc(e.label) + ' <span class="text-muted">(' + money(e.price_per_day) + '/day)</span></label>';
+        return '<label class="extra-option">' +
+          '<input type="checkbox" value="' + e.id + '" data-extra />' +
+          '<span>' + esc(e.label) + '</span>' +
+          '<span class="extra-price">+' + money(e.price_per_day) + '/d</span>' +
+        '</label>';
       }).join('');
 
       openModal({
-        title: 'Book ' + vehicle.brand + ' ' + vehicle.model,
+        title: vehicle.brand + ' ' + vehicle.model,
+        eyebrow: 'New reservation',
+        subtitle: esc(vehicle.branch || 'DriveFleet') + ' · ' + money(vehicle.price_per_day) + ' per day',
         size: 'lg',
+        hero: '<div class="modal-hero">' + badge(vehicle.status) + vehiclePhoto(vehicle, vehicle.brand + ' ' + vehicle.model, '100vw') + '</div>',
         body:
-          '<form id="bookingForm" class="form-row">' +
-            '<div class="form-group"><label class="form-label" for="bookCustomer">Customer</label>' +
-              '<select class="form-select" id="bookCustomer" required><option value="">Select a customer</option>' + options + '</select></div>' +
-            '<div class="form-group"><label class="form-label" for="bookPickup">Pick-up date</label>' +
-              '<input class="form-input" type="date" id="bookPickup" value="' + pickup + '" required /></div>' +
-            '<div class="form-group"><label class="form-label" for="bookReturn">Return date</label>' +
-              '<input class="form-input" type="date" id="bookReturn" value="' + back + '" required /></div>' +
-            '<div class="form-group"><span class="form-label">Extras</span><div class="checkbox-group">' + extraFields + '</div></div>' +
-            '<div class="card filter-card"><div class="filter-title">' + ICONS.calendar + ' Price breakdown</div>' +
-              '<div class="summary-list" id="quoteSummary"><span class="body-sm text-muted">Choose your dates to see the live quote.</span></div></div>' +
+          '<form id="bookingForm" class="booking-grid">' +
+            '<div class="modal-section modal-anim">' +
+              '<div class="modal-section-title">' + ICONS.calendar + ' Booking details</div>' +
+              '<div class="form-group">' +
+                '<label class="form-label" for="bookCustomer">Customer <span class="required">*</span></label>' +
+                '<select class="form-select" id="bookCustomer" required>' +
+                  '<option value="">Select a customer</option>' + options + '</select>' +
+              '</div>' +
+              '<div class="form-row">' +
+                '<div class="form-group">' +
+                  '<label class="form-label" for="bookPickup">Pick-up date</label>' +
+                  '<input class="form-input" type="date" id="bookPickup" value="' + pickup + '" required />' +
+                '</div>' +
+                '<div class="form-group">' +
+                  '<label class="form-label" for="bookReturn">Return date</label>' +
+                  '<input class="form-input" type="date" id="bookReturn" value="' + back + '" required />' +
+                '</div>' +
+              '</div>' +
+              '<div class="modal-section">' +
+                '<div class="modal-section-title">Extras</div>' +
+                '<div class="extra-grid">' + extraFields + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<aside class="booking-summary modal-anim modal-anim-d2">' +
+              '<div class="modal-section-title">' + ICONS.card + ' Price breakdown</div>' +
+              '<div class="summary-list" id="quoteSummary">' +
+                '<span class="body-sm text-muted">Choose your dates to see the live quote.</span>' +
+              '</div>' +
+            '</aside>' +
           '</form>',
-        footer: '<button class="btn btn-ghost" type="button" data-close-modal>Cancel</button>' +
-          '<button class="btn btn-primary" type="submit" form="bookingForm">Confirm booking</button>'
+        footer:
+          '<div class="modal-footer-total">' +
+            '<span class="label-xs">Total to pay</span>' +
+            '<span class="value" id="footerTotal">—</span>' +
+          '</div>' +
+          '<div class="modal-footer-actions">' +
+            '<button class="btn btn-ghost" type="button" data-close-modal>Cancel</button>' +
+            '<button class="btn btn-primary" type="submit" form="bookingForm">' + CHECK_ICON + ' Confirm booking</button>' +
+          '</div>'
       });
 
       var form = el('bookingForm');
@@ -286,11 +396,17 @@
         };
         Promise.resolve(api.rentals.quote(payload)).then(function (quote) {
           var host = el('quoteSummary');
+          var footerTotal = el('footerTotal');
           if (!host) return;
+
           if (!quote || quote.error) {
-            host.innerHTML = '<span class="body-sm text-muted">' + esc((quote && quote.error) || 'Unable to calculate a quote.') + '</span>';
+            host.innerHTML = '<span class="body-sm text-muted">' +
+              esc((quote && quote.error) || 'Unable to calculate a quote.') + '</span>';
+            if (footerTotal) { footerTotal.textContent = '—'; }
             return;
           }
+          if (footerTotal) { footerTotal.textContent = money(quote.total_amount); }
+
           var rows = [
             ['Daily rate', money(quote.daily_rate)],
             ['Days', quote.days],
@@ -311,6 +427,13 @@
       form.addEventListener('change', refreshQuote);
       form.addEventListener('input', refreshQuote);
       refreshQuote();
+
+      /* Reflect the pre-checked state (none today, but keeps the UI honest if
+         the defaults change). */
+      qsa('[data-extra]', form).forEach(function (input) {
+        var card = input.closest('.extra-option');
+        if (card) { card.classList.toggle('is-selected', input.checked); }
+      });
 
       form.addEventListener('submit', function (event) {
         event.preventDefault();

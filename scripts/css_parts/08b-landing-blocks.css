@@ -149,7 +149,7 @@
 
 .catalog-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
   gap: var(--space-xl);
   align-items: start;
 }
@@ -183,10 +183,12 @@
 /* ----------------------------- Stats strip ----------------------------- */
 .stat-strip {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: var(--space-md);
   margin-bottom: var(--space-xl);
 }
+
+.stat-strip > * { min-width: 0; }
 
 .step-indicator { display: flex; align-items: center; gap: var(--space-sm); flex-wrap: wrap; }
 

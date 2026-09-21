@@ -7,6 +7,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-1);
+  min-width: 0;
   transition: transform var(--transition), box-shadow var(--transition);
 }
 
@@ -52,7 +53,21 @@
   transition: transform 400ms ease;
 }
 
+/* Real photograph sits above the SVG placeholder; the placeholder stays behind
+   it and is revealed automatically if the photo fails to load. */
+.vehicle-card-image .vehicle-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transition: transform 400ms ease, opacity 400ms ease;
+}
+
+.vehicle-card-image .vehicle-photo.is-loaded { opacity: 1; }
+.vehicle-card-image .vehicle-photo.is-missing { display: none; }
+
 .vehicle-card:hover .vehicle-card-image img { transform: scale(1.05); }
+.vehicle-card:hover .vehicle-photo.is-loaded { transform: scale(1.05); }
 
 .vehicle-card-image .badge { position: absolute; top: 12px; left: 12px; z-index: 1; }
 .vehicle-card-image .type-badge { position: absolute; top: 12px; right: 12px; z-index: 1; }

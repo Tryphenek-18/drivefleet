@@ -9,6 +9,7 @@
   .footer-grid { grid-template-columns: 1.4fr repeat(3, 1fr); gap: var(--space-lg); }
   .search-grid { grid-template-columns: repeat(2, 1fr); }
   .search-grid .search-submit { grid-column: 1 / -1; }
+  .catalog-layout { grid-template-columns: minmax(220px, 260px) minmax(0, 1fr); gap: var(--space-lg); }
 }
 
 @media (max-width: 1024px) {
@@ -31,6 +32,21 @@
 
   .auth-page { grid-template-columns: 1fr; }
   .auth-visual { display: none; }
+
+  /* Catalogue: the filter rail stacks above the results and the date fields get
+     room to breathe instead of overflowing their card. */
+  .catalog-layout { grid-template-columns: minmax(0, 1fr); }
+  .filter-card .form-row { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .page-content { padding: var(--space-lg) var(--margin); }
+}
+
+@media (max-width: 900px) {
+  /* Topbar: allow every element to shrink, and drop the secondary link so the
+     search field never pushes the bar wider than the viewport. */
+  .topbar { gap: var(--space-sm); }
+  .topbar-right .btn { display: none; }
+  .topbar-search { flex: 1 1 auto; max-width: none; }
+  .stat-strip { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 }
 
 @media (max-width: 768px) {
@@ -85,6 +101,15 @@
   .mobile-menu-panel { width: 100%; max-width: none; }
   .modal-footer { flex-direction: column-reverse; }
   .modal-footer .btn { width: 100%; }
+  .modal-footer-total { width: 100%; flex-direction: row; align-items: baseline; justify-content: space-between; }
+
+  /* Topbar: keep the burger + search, drop the decorative cluster. */
+  .topbar-right { display: none; }
+  .topbar-search { max-width: none; }
+  .page-content { padding: var(--space-md) var(--margin); }
+  .stat-strip { grid-template-columns: 1fr; }
+  .filter-card { padding: var(--space-md); }
+  .filter-card .form-row { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 400px) {

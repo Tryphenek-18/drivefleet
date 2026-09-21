@@ -109,13 +109,21 @@ project_six/
 │   │   ├── main.js              # page router + feature modules + modal engine
 │   │   └── app.js               # GENERATED bundle of the 7 sources above
 │   └── assets/
-│       └── hero-vehicle.svg     # hero illustration
+│       ├── favicon.svg          # app icon (teal car glyph)
+│       ├── hero-vehicle.svg     # hero illustration
+│       └── vehicles/            # 12 real car photos: <slug>-large.webp (800x500) + <slug>-small.webp (400x250)
+│           ├── CREDITS.md       # source + author + license per photo
+│           └── credits.json     # same data, machine readable
 ├── scripts/
 │   ├── build_frontend.py        # CSS parts + JS sources → public/css/style.css, public/js/app.js
+│   ├── fetch_vehicle_images.py  # Wikimedia Commons → optimised WebP renditions (+ credits)
 │   ├── verify_frontend.py       # static checks: syntax balance, node --check, link/asset integrity
 │   ├── smoke_test.js            # headless API-contract test of the data/mock/api stack
 │   ├── dom_test.js              # jsdom rendering + interaction test of every page
+│   ├── browser_test.js          # Chromium (Playwright): 8 viewports, photos, modal, no overflow
 │   └── css_parts/               # 14 modular stylesheets (tokens → components → utilities)
+├── docs/
+│   └── screenshots/             # responsive reference shots produced by browser_test.js
 ├── src/                         # reserved for the backend phase (config/ controllers/ routes/)
 ├── .gitignore                   # excludes .env, node_modules, OS junk
 └── README.md
@@ -205,12 +213,75 @@ network error (or any HTTP failure while `CONFIG.useMockFallback` is true) resol
 `MockApiEx` instead. Point `window.DRIVEFLEET_API_BASE` at another origin if the backend is
 hosted elsewhere.
 
+### Vehicle photo pipeline
+
+The 12 fleet photos are **real photographs**, not placeholders. They are built by
+`scripts/fetch_vehicle_images.py`, which searches **Wikimedia Commons** (freely licensed),
+rejects unsuitable shots with a scoring model — it reads the *leading* year in the Commons
+filename as the model year, prefers recent generations, and down-ranks interiors, crash,
+police/ambulance liveries, stretched limousines and multi-marque shots — then centre-crops to
+16:10 and writes two WebP renditions per vehicle:
+
+| Rendition | Size | Weight | Usage |
+|-----------|------|--------|-------|
+| `<slug>-small.webp` | 400 × 250 | 14–28 KB | `srcset` candidate for phones (`400w`) |
+| `<slug>-large.webp` | 800 × 500 | 45–104 KB | cards, modal hero (`800w`) |
+
+```bash
+python3 scripts/fetch_vehicle_images.py                      # build what is missing (cached)
+python3 scripts/fetch_vehicle_images.py --force               # rebuild everything
+python3 scripts/fetch_vehicle_images.py --only volvo-xc60     # refresh a single vehicle
+```
+
+All 24 files weigh **~1.18 MB total (~99 KB per vehicle for both renditions)**, every raster is
+exactly 800×500 / 400×250 (consistent framing), and attribution lives in
+**[`public/assets/vehicles/CREDITS.md`](public/assets/vehicles/CREDITS.md)** (author + license +
+Commons link per photo, also in `credits.json`).
+
+In the markup each card renders `<img class="vehicle-photo" srcset=… sizes=… width="800"
+height="500" loading="lazy" decoding="async">` **on top of** the SVG car glyph. `main.js`
+binds `load`/`error` handlers: the photo fades in (`.is-loaded`), and if the file is missing
+the `<img>` is dropped (`.is-missing`) so the card gracefully falls back to the glyph instead
+of a broken-image icon.
+
+### Modal design (booking, details, forms)
+
+`#appModalOverlay` is a single reusable surface produced by `DriveFleetUI.openModal()`:
+
+* glass backdrop (`blur(10px) saturate(130%)` + radial vignette) and a 24 px sheet with a
+  teal → mint → amber identity stripe, deep layered shadow and a blurred sticky footer;
+* header with eyebrow label, title and subtitle; a hero photo slot and a rotating close button;
+* entrance/exit animations (`overlayIn/modalIn/modalOut` keyframes, 360 ms
+  `cubic-bezier(.22,1,.36,1)`) plus staggered `.modal-anim` content — closing plays first and
+  the node is unmounted afterwards by `closeModal()`;
+* the booking dialog is a two-column `.booking-grid` (form + sticky-style `.booking-summary`
+  price card) that collapses to one column under 860 px and becomes a bottom sheet with a grab
+  handle under 768 px; extras are selectable `.extra-option` cards that highlight and
+  re-price on click, and the footer mirrors the live total;
+* `Esc`, the backdrop and the close button all dismiss it; focus ring, `aria-modal`,
+  `aria-labelledby` and `prefers-reduced-motion` are handled.
+
+### Responsive layout rules
+
+* `.form-row` is `repeat(auto-fit, minmax(140px, 1fr))` and `input[type="date"]` carries
+  `min-width: 0` — date fields used to burst out of the 280 px catalogue filter card because
+  `1fr` tracks respect min-content and date controls have a wide intrinsic minimum;
+* `.grid > *`, `.card` and `.stat-strip > *` are `min-width: 0`, so a wide data table scrolls
+  inside `.table-wrapper` (`overflow-x: auto; max-width: 100%`) instead of widening the page;
+* the app topbar uses `min-height`, `flex: 1 1 260px` on `.topbar-search` with `min-width: 0`,
+  hides the secondary "View storefront" link at ≤ 900 px and the whole right cluster at
+  ≤ 560 px; the marketing navbar keeps `min-width: 0` on `.navbar-inner`;
+* `.catalog-layout` goes 280 px + 1fr → 260 px + 1fr (≤ 1200 px) → single column (≤ 1024 px).
+
+Verified in Chromium at **320 / 375 / 560 / 768 / 900 / 1024 / 1440 / 1920 px**: no page
+produces horizontal scroll, and every chrome element stays inside the viewport.
+
 ### Rebuilding the bundles
 
 ```bash
 python3 scripts/build_frontend.py
-# [CSS] public/css/style.css — 14 parts, ~55 KB
-# [JS]  public/js/app.js — 7 files, ~130 KB
+# [CSS] public/css/style.css — 14 parts, ~66 KB
+# [JS]  public/js/app.js — 7 files, ~137 KB
 ```
 
 Each page loads exactly one script (`../js/app.js`), so the load order inside the bundle is
@@ -220,7 +291,7 @@ the load order that matters: `data → mock-core → mock-api → api → compon
 
 ## 6. Testing & verification
 
-Three independent layers, all runnable from the project root:
+Four independent layers, all runnable from the project root:
 
 ```bash
 # 1) static integrity: brace/paren balance, node --check, link + asset resolution
@@ -229,16 +300,31 @@ python3 scripts/verify_frontend.py
 # 2) API contract: runs the data→mock→api stack offline and asserts every endpoint shape
 node scripts/smoke_test.js
 
-# 3) real rendering: jsdom loads each page, runs app.js, drives the UI (optional dev dep)
+# 3) rendering + interaction in jsdom (optional dev dependency)
 npm install --no-save jsdom --prefix /tmp/domtest
 NODE_PATH=/tmp/domtest/node_modules node scripts/dom_test.js
+
+# 4) real Chromium: 8 viewports, photo loading, modal behaviour, overflow guards
+npm install --no-save jsdom playwright --prefix /tmp/domtest
+NODE_PATH=/tmp/domtest/node_modules npx --prefix /tmp/domtest playwright install chromium
+NODE_PATH=/tmp/domtest/node_modules node scripts/browser_test.js   # also writes docs/screenshots/*
 ```
 
-Last run in this repository: **63 static checks, 54 API checks and 66 DOM checks — all passing.**
-The DOM suite covers the landing hero + counters + fleet grid, the dashboard KPIs and tables,
+Last run in this repository — **all green**:
+
+| Suite | Checks | Covers |
+|-------|--------|--------|
+| `verify_frontend.py` | 63 | syntax balance, `node --check` on the bundle, every page's links and assets resolve |
+| `smoke_test.js` | 54 | vehicles/customers/rentals/payments/auth/stats shapes, pricing maths, availability, CRUD, reset, HTML id contract |
+| `dom_test.js` | 66 | jsdom render + drive: hero counters, fleet grid, filters, pagination, booking modal quote, tables, status changes, sign-in/registration |
+| `browser_test.js` | 106 | Chromium at 320/375/560/768/900/1024/1440/1920 px: zero horizontal overflow, contained chrome and date fields, sidebar drawer, **all 12 photos decoded as WebP with HTTP 200**, booking modal design + open/close animation, no JS errors or broken assets |
+
+The jsdom suite drives the landing hero + counters + fleet grid, the dashboard KPIs and tables,
 fleet filtering (12 → 4 SUVs), pagination, the booking modal with a live quote, the
 customer/rental/payment tables, a rental status change and delete, ledger filtering, failed
-and successful sign-in, registration validation and the password-strength meter.
+and successful sign-in, registration validation and the password-strength meter. The Chromium
+suite adds what only a real engine can prove: pixel-level overflow, actual image decoding and
+the modal's animation lifecycle.
 
 ---
 
@@ -252,8 +338,9 @@ Start the static server (section 3) and follow along in the browser.
    soft shadow. Hover the nav links to see the colour transition.
 2. The three hero counters animate from `0` to `248`, `12,480` and `99%`.
 3. Under *Featured vehicles* the grid renders six cards (sorted by rating). Each card shows a
-   status badge (Available / Rented / Reserved / Maintenance), the class badge, a car
-   illustration, specs, a daily price and two buttons.
+   status badge (Available / Rented / Reserved / Maintenance), the class badge, a **real WebP
+   photo of that model**, its specs, a daily price and two buttons. Hover a card: the photo
+   zooms slightly and the card lifts.
 4. Set *Vehicle type = SUV*, *Pick-up = tomorrow*, *Return = +3 days*, *Max price = $120* and
    press **Search** → the browser navigates to
    `pages/vehicles.html?type=suv&pickup_date=…&return_date=…&max_price=120` and the filter
@@ -270,11 +357,14 @@ Start the static server (section 3) and follow along in the browser.
    high* → the Panda-priced hatchback leads; press **Clear** to restore all 12.
 4. Click **Details** on any card → a modal lists the plate, specs, mileage, branch, rating and
    the included features chips.
-5. Click **Book now** → the booking modal opens with a customer selector, pre-filled dates and
-   the four extras. Change the dates or tick *GPS navigation*: the **Price breakdown**
-   recalculates instantly (days, base, extras, discount, subtotal, VAT 20 %, refundable
-   deposit, total). Choose a customer and press **Confirm booking** → the modal closes, a
-   green toast reports `Booking #2011 created for <customer>` and the grid refreshes.
+5. Click **Book now** → the booking dialog opens (animated glass backdrop, hero photo, eyebrow
+   label, customer selector, pre-filled dates, the four extras as selectable cards and a
+   highlighted total in the footer). Change the dates or click *GPS navigation*: the extra card
+   highlights and the **Price breakdown** recalculates instantly (days, base, extras, discount,
+   subtotal, VAT 20 %, refundable deposit, total) — the footer total follows. Close it with
+   `Esc`, the backdrop or the ✕ (the sheet animates out before it unmounts). Choose a customer
+   and press **Confirm booking** → the dialog fades away, a green toast reports
+   `Booking #2011 created for <customer>` and the grid refreshes.
 6. Press **Add vehicle** to see the create form (brand, model, type, branch, price, plate,
    seats, fuel); saving prepends the new car to the fleet.
 
